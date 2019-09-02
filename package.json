@@ -1,0 +1,28 @@
+{
+  "name": "toyhauler-auth-client",
+  "version": "0.0.1",
+  "description": "Typescript/node library for accessing the remote Toyhauler Auth API",
+  "main": "src/AuthClient.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mfreydl/toyhauler-auth-client.git"
+  },
+  "keywords": [
+    "Toyhauler",
+    "Authentication",
+    "Typescript",
+    "Node",
+    "API",
+    "REST",
+    "Client"
+  ],
+  "author": "mfreydl",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mfreydl/toyhauler-auth-client/issues"
+  },
+  "homepage": "https://github.com/mfreydl/toyhauler-auth-client#readme"
+}
