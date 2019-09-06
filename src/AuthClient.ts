@@ -4,6 +4,12 @@ import { User, Tenant } from "toyhauler-common/src/security";
 import axios from "axios"
 
 export class AuthClient {
+
+  /** Hardcoded to match the current setting on the server.
+   * TODO: Get this from a config that is copied from the server proiject to the client project on build.
+   */
+  static TokenHeaderParam = "authorization";
+
   /** Local interface for the remote Toyhauler Auth Api.
    * @param authApiRootUrl Fully qualified base url for the auth api. 
    */
@@ -11,9 +17,6 @@ export class AuthClient {
     
   }
 
-  public isAuthenticated(): boolean {
-    return false;
-  }
 
   /** Logs in remotely with the given credentials.  */
   public async authenticate(login: string, password: string, tenantCode?: string): Promise<SingleResult<User>> {
@@ -22,6 +25,41 @@ export class AuthClient {
         let url = path.join(this.authApiRootUrl, "authenticate");
         let req = { login: login, password: password, tenantCode: tenantCode };
         let response = await axios.post<SingleResult<User>>(url, req);        
+        resolve(response.data);
+      } catch (err) {
+        reject(err);
+      }
+    });
+  }
+
+  /** Provides the ability to extend an existing token.
+   *  Returns failure for invalid or revoked tokens.
+   *  Returns any errors encountered refreshing.  */
+  public async refreshToken(currentToken: string): Promise<SingleResult<User>> {
+    return new Promise<SingleResult<User>>(async (resolve,reject) => {
+      try {
+        let url = path.join(this.authApiRootUrl, "refreshToken");
+        let req = { };
+        let reqCfg = { headers: { [AuthClient.TokenHeaderParam]: currentToken } };
+        let response = await axios.post<SingleResult<User>>(url, req);        
+        resolve(response.data);
+      } catch (err) {
+        reject(err);
+      }
+    });
+  }
+
+
+    /** Provides the ability to extend an existing token.
+   *  Returns failure for invalid or revoked tokens.
+   *  Returns any errors encountered refreshing.  */
+  public async switchTenant(currentToken: string, tenantCode: string): Promise<SingleResult<User>> {
+    return new Promise<SingleResult<User>>(async (resolve,reject) => {
+      try {
+        let url = path.join(this.authApiRootUrl, "switchTenant");
+        let req = { newTenantCode: tenantCode };
+        let reqCfg = { headers: { [AuthClient.TokenHeaderParam]: currentToken } };
+        let response = await axios.post<SingleResult<User>>(url, req, reqCfg);
         resolve(response.data);
       } catch (err) {
         reject(err);
