@@ -1,6 +1,6 @@
 import * as path from "path"
-import { SingleResult } from "toyhauler-common/src/contracts";
-import { User, Tenant } from "toyhauler-common/src/security";
+import { SingleResult } from "toyhauler-common/dist/contracts";
+import { User, Tenant } from "toyhauler-common/dist/security";
 import axios from "axios"
 import { utils } from './utils'
 import { AuthClientConfig } from "./AuthClientConfig";
