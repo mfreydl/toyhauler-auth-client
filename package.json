@@ -1,6 +1,6 @@
 {
   "name": "toyhauler-auth-client",
-  "version": "0.0.3-4",
+  "version": "0.0.3-5",
   "description": "Typescript/node library for accessing the remote Toyhauler Auth API",
   "main": "bin/AuthClient.js",
   "scripts": {
