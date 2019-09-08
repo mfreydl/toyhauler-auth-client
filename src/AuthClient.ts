@@ -129,7 +129,7 @@ export class AuthClient {
             [AuthClient.TokenHeaderParam]: currentToken 
           } 
         };
-        let response = await axios.post<SingleResult<Tenant>>(url, req);        
+        let response = await axios.post<SingleResult<Tenant>>(url, req, options);        
         resolve(response.data);
       } catch (err) {
         reject(err);
