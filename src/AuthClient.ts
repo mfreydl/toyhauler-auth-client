@@ -7,8 +7,7 @@ import { AuthClientConfig } from "./AuthClientConfig";
 
 export class AuthClient {
 
-  static CONFIG_FOLDER_PATH = "~/.config/toyhauler-auth-client"
-  static DEFAULT_API_AUTH_URL = "auth.toyhauler.io"
+  static DEFAULT_API_AUTH_URL = "http://auth.toyhauler.io"
   /** Hardcoded to match the current setting on the server.
    * TODO: Get this from a config that is copied from the server proiject to the client project on build.
    */
@@ -23,7 +22,7 @@ export class AuthClient {
       this.authApiRootUrl = authApiUrl;
     } else {
       // Load from the config or fall back on the default.  We want this to throw loudly on exception.
-      let cfg = utils.deserializeJsonFile<AuthClientConfig>(path.join(AuthClient.CONFIG_FOLDER_PATH, AuthClientConfig.FILENAME));
+      let cfg = AuthClientConfig.load();
       this.authApiRootUrl = (cfg && cfg.authApiBaseUrl) || AuthClient.DEFAULT_API_AUTH_URL;
     }
   }
