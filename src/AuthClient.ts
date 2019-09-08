@@ -29,15 +29,24 @@ export class AuthClient {
 
   public readonly authApiRootUrl: string;
 
-  /** Logs in remotely with the given credentials.  */
+  /** Logs in remotely with the given credentials.  
+   * Returns a valid token in the headers of the response 
+   * and the user info in the body of the response.
+   * @param login The human readable unique identifier for the user.
+   * @param password the secret held for this particular user.
+   * @param tenantCode (optional) Unique identifier of the tenant to activate with this authentication.
+  */
   public async authenticate(login: string, password: string, tenantCode?: string): Promise<SingleResult<User>> {
     return new Promise<SingleResult<User>>(async (resolve,reject) => {
       try {
         // let url = path.join(this.authApiRootUrl, "authenticate");
         let url = "authenticate";
         let req = { login: login, password: password, tenantCode: tenantCode };
-
-        let response = await axios.post<SingleResult<User>>(url, req, { "baseURL": this.authApiRootUrl });        
+        let options = { 
+            "baseURL": this.authApiRootUrl, 
+            "headers": { "content-type": "application/json" } 
+          };
+        let response = await axios.post<SingleResult<User>>(url, req, options);        
         resolve(response.data);
       } catch (err) {
         reject(err);
@@ -47,14 +56,22 @@ export class AuthClient {
 
   /** Provides the ability to extend an existing token.
    *  Returns failure for invalid or revoked tokens.
-   *  Returns any errors encountered refreshing.  */
+   *  Returns any errors encountered refreshing.  
+   * @param currentToken The JWT token returned in a prior request.
+   * */
   public async refreshToken(currentToken: string): Promise<SingleResult<User>> {
     return new Promise<SingleResult<User>>(async (resolve,reject) => {
       try {
-        let url = path.join(this.authApiRootUrl, "refreshToken");
+        let url = "refreshToken";
         let req = { };
-        let reqCfg = { headers: { [AuthClient.TokenHeaderParam]: currentToken } };
-        let response = await axios.post<SingleResult<User>>(url, req);        
+        let options = { 
+          "baseURL": this.authApiRootUrl, 
+          "headers": { 
+            "content-type": "application/json", 
+            [AuthClient.TokenHeaderParam]: currentToken 
+          } 
+        };
+      let response = await axios.post<SingleResult<User>>(url, req, options);        
         resolve(response.data);
       } catch (err) {
         reject(err);
@@ -63,16 +80,24 @@ export class AuthClient {
   }
 
 
-    /** Provides the ability to extend an existing token.
+  /** Provides the ability to extend an existing token.
    *  Returns failure for invalid or revoked tokens.
+   * @param currentToken The JWT token returned in a prior request.
+   * @param tenantCode Unique identifier of the tenant being switched to.
    *  Returns any errors encountered refreshing.  */
   public async switchTenant(currentToken: string, tenantCode: string): Promise<SingleResult<User>> {
     return new Promise<SingleResult<User>>(async (resolve,reject) => {
       try {
-        let url = path.join(this.authApiRootUrl, "switchTenant");
+        let url = "switchTenant";
         let req = { newTenantCode: tenantCode };
-        let reqCfg = { headers: { [AuthClient.TokenHeaderParam]: currentToken } };
-        let response = await axios.post<SingleResult<User>>(url, req, reqCfg);
+        let options = { 
+          "baseURL": this.authApiRootUrl, 
+          "headers": { 
+            "content-type": "application/json", 
+            [AuthClient.TokenHeaderParam]: currentToken 
+          } 
+        };
+        let response = await axios.post<SingleResult<User>>(url, req, options);
         resolve(response.data);
       } catch (err) {
         reject(err);
@@ -90,12 +115,20 @@ export class AuthClient {
    * @param userName User to be the adminstrator for the new tenant.
    * @param password Password for the given user (desired password if the newuser flag is set).
    * @param tenantCode (optional) Desired unique identifier for the new tenant (if omitted one will be generated).
+   * @param currentToken The JWT token returned in a prior request.
    *  */
-  public async registerTenant(tenantName: string, newUser: boolean, userName: string, password: string, tenantCode?: string): Promise<SingleResult<Tenant>> {
+  public async registerTenant(tenantName: string, newUser: boolean, userName: string, password: string, tenantCode?: string, currentToken?: string): Promise<SingleResult<Tenant>> {
     return new Promise<SingleResult<Tenant>>(async (resolve,reject) => {
       try {
-        let url = path.join(this.authApiRootUrl, "tenants");
+        let url = "tenants";
         let req = { tenantName: tenantName, newUser: newUser, userName: userName, password: password, tenantCode: tenantCode };
+        let options = { 
+          "baseURL": this.authApiRootUrl, 
+          "headers": { 
+            "content-type": "application/json", 
+            [AuthClient.TokenHeaderParam]: currentToken 
+          } 
+        };
         let response = await axios.post<SingleResult<Tenant>>(url, req);        
         resolve(response.data);
       } catch (err) {
