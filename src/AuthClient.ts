@@ -2,9 +2,13 @@ import * as path from "path"
 import { SingleResult } from "toyhauler-common/src/contracts";
 import { User, Tenant } from "toyhauler-common/src/security";
 import axios from "axios"
+import { utils } from './utils'
+import { AuthClientConfig } from "./AuthClientConfig";
 
 export class AuthClient {
 
+  static CONFIG_FOLDER_PATH = "~/.config/toyhauler-auth-client"
+  static DEFAULT_API_AUTH_URL = "auth.toyhauler.io"
   /** Hardcoded to match the current setting on the server.
    * TODO: Get this from a config that is copied from the server proiject to the client project on build.
    */
@@ -13,10 +17,18 @@ export class AuthClient {
   /** Local interface for the remote Toyhauler Auth Api.
    * @param authApiRootUrl Fully qualified base url for the auth api. 
    */
-  constructor(public readonly authApiRootUrl: string) {
-    
+  constructor(authApiUrl?: string) {
+
+    if (authApiUrl) {
+      this.authApiRootUrl = authApiUrl;
+    } else {
+      // Load from the config or fall back on the default.  We want this to throw loudly on exception.
+      let cfg = utils.deserializeJsonFile<AuthClientConfig>(path.join(AuthClient.CONFIG_FOLDER_PATH, AuthClientConfig.FILENAME));
+      this.authApiRootUrl = (cfg && cfg.authApiBaseUrl) || AuthClient.DEFAULT_API_AUTH_URL;
+    }
   }
 
+  public readonly authApiRootUrl: string;
 
   /** Logs in remotely with the given credentials.  */
   public async authenticate(login: string, password: string, tenantCode?: string): Promise<SingleResult<User>> {

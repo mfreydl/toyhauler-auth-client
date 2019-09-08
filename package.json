@@ -26,7 +26,9 @@
   },
   "homepage": "https://github.com/mfreydl/toyhauler-auth-client#readme",
   "dependencies": {
+    "@types/comment-json": "^1.1.1",
     "axios": "^0.19.0",
+    "comment-json": "^2.1.0",
     "toyhauler-common": "0.0.1"
   }
 }
