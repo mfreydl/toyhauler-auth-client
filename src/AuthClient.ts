@@ -33,9 +33,11 @@ export class AuthClient {
   public async authenticate(login: string, password: string, tenantCode?: string): Promise<SingleResult<User>> {
     return new Promise<SingleResult<User>>(async (resolve,reject) => {
       try {
-        let url = path.join(this.authApiRootUrl, "authenticate");
+        // let url = path.join(this.authApiRootUrl, "authenticate");
+        let url = "authenticate";
         let req = { login: login, password: password, tenantCode: tenantCode };
-        let response = await axios.post<SingleResult<User>>(url, req);        
+
+        let response = await axios.post<SingleResult<User>>(url, req, { "baseURL": this.authApiRootUrl });        
         resolve(response.data);
       } catch (err) {
         reject(err);
