@@ -4,6 +4,7 @@ import { User, Tenant } from "toyhauler-common/dist/security";
 import axios from "axios"
 import { utils } from './utils'
 import { AuthClientConfig } from "./AuthClientConfig";
+import { TokenHolder } from "./tokenHolder";
 
 export class AuthClient {
 
@@ -11,7 +12,7 @@ export class AuthClient {
   /** Hardcoded to match the current setting on the server.
    * TODO: Get this from a config that is copied from the server proiject to the client project on build.
    */
-  static TokenHeaderParam = "authorization";
+  static TOKEN_HEADER_PARAM = "authorization";
 
   /** Local interface for the remote Toyhauler Auth Api.
    * @param authApiRootUrl Fully qualified base url for the auth api. 
@@ -36,8 +37,8 @@ export class AuthClient {
    * @param password the secret held for this particular user.
    * @param tenantCode (optional) Unique identifier of the tenant to activate with this authentication.
   */
-  public async authenticate(login: string, password: string, tenantCode?: string): Promise<SingleResult<User>> {
-    return new Promise<SingleResult<User>>(async (resolve,reject) => {
+  public async authenticate(login: string, password: string, tenantCode?: string): Promise<SingleResult<TokenHolder>> {
+    return new Promise<SingleResult<TokenHolder>>(async (resolve,reject) => {
       try {
         // let url = path.join(this.authApiRootUrl, "authenticate");
         let url = "authenticate";
@@ -46,8 +47,18 @@ export class AuthClient {
             "baseURL": this.authApiRootUrl, 
             "headers": { "content-type": "application/json" } 
           };
-        let response = await axios.post<SingleResult<User>>(url, req, options);        
-        resolve(response.data);
+        let apiResponse = await axios.post<SingleResult<User>>(url, req, options); 
+        if (apiResponse.data) {
+          let result = new SingleResult<TokenHolder>(apiResponse.data.success, apiResponse.data.message, apiResponse.data.error, undefined, apiResponse.data.validation);
+          if (apiResponse.data.output) {
+            let token: string|undefined = apiResponse.headers[AuthClient.TOKEN_HEADER_PARAM];
+            if (!token) throw new Error(`Authentication service did not provide a user token.`);
+            result.output = new TokenHolder(apiResponse.data.output, token);
+          }   
+          resolve(result);
+        } else {
+          throw new Error(`Authentication request did not return an output object. HttpStatus: ${apiResponse.status} ${apiResponse.statusText}`);
+        }
       } catch (err) {
         reject(err);
       }
@@ -68,7 +79,7 @@ export class AuthClient {
           "baseURL": this.authApiRootUrl, 
           "headers": { 
             "content-type": "application/json", 
-            [AuthClient.TokenHeaderParam]: currentToken 
+            [AuthClient.TOKEN_HEADER_PARAM]: currentToken 
           } 
         };
       let response = await axios.post<SingleResult<User>>(url, req, options);        
@@ -94,7 +105,7 @@ export class AuthClient {
           "baseURL": this.authApiRootUrl, 
           "headers": { 
             "content-type": "application/json", 
-            [AuthClient.TokenHeaderParam]: currentToken 
+            [AuthClient.TOKEN_HEADER_PARAM]: currentToken 
           } 
         };
         let response = await axios.post<SingleResult<User>>(url, req, options);
@@ -126,7 +137,7 @@ export class AuthClient {
           "baseURL": this.authApiRootUrl, 
           "headers": { 
             "content-type": "application/json", 
-            [AuthClient.TokenHeaderParam]: currentToken 
+            [AuthClient.TOKEN_HEADER_PARAM]: currentToken 
           } 
         };
         let response = await axios.post<SingleResult<Tenant>>(url, req, options);        
