@@ -3,6 +3,9 @@ import * as fs from "fs"
 import * as os from 'os'
 import * as commentJson from 'comment-json'
 
+
+// TODO:  Promote this to a shared pkg
+
 export class utils {
 
   /** Returns the instantiated object or array.  

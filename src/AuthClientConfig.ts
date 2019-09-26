@@ -1,18 +1,16 @@
-import * as path from 'path';
-import { utils } from "./utils";
+import { ConfigLoader } from './common/ConfigLoader';
+
 
 /** The in-memory representation of the authclient config file.
  */
 export class AuthClientConfig {
-  static CONFIG_FOLDER_PATH = "~/.config/toyhauler-auth-client"
-  static FILENAME = "config.json"
+  private static loader = new ConfigLoader<AuthClientConfig>("~/.config/toyhauler-auth-client", "config.json")
 
   static load(): AuthClientConfig|undefined {
-    let cfg = utils.deserializeJsonFile<AuthClientConfig>(path.join(this.CONFIG_FOLDER_PATH, this.FILENAME));
+    let cfg = this.loader.load();  // yeah this is real helpful - maybe we should just accept the .loader.load() syntax and expose the loader itself?
     return cfg;
   }
   
-
   constructor() {
     
   }
